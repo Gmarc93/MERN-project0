@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const bcrypt = require('bcrypt');
 
 // Custom validation functions:
 function passwordConfirmValidator(val) {
@@ -44,6 +45,13 @@ const userSchema = mongoose.Schema({
     type: String,
     default: 'user',
   },
+});
+
+userSchema.pre('save', async function () {
+  if (!this.isModified('password')) return;
+
+  this.password = await bcrypt.hash(this.password, 12);
+  this.passwordConfirm = undefined;
 });
 
 const User = mongoose.model('User', userSchema);

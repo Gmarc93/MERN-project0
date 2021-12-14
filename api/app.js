@@ -5,6 +5,8 @@ const userRouter = require('./routers/userRouter');
 
 const app = express();
 
+app.use(express.json());
+
 app.get('/', (req, res, next) => res.send('Welcome to the home page!'));
 
 app.use('/api/v1/users', userRouter);

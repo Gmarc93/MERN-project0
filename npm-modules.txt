@@ -1,17 +1,6 @@
 Production dependencies:
 ------------------------
-bcrypt  
-dotenv 
-express 
-express-mongo-sanitize 
-express-rate-limit 
-helmet 
-hpp 
-jsonwebtoken 
-mongoose 
-nodemailer 
-validator 
-xss-clean 
+bcrypt dotenv express express-mongo-sanitize express-rate-limit helmet hpp jsonwebtoken mongoose nodemailer validator xss-clean 
 
 Development dependencies:
 -------------------------
