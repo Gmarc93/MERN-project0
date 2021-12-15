@@ -2,8 +2,42 @@ const util = require('util');
 const User = require('../models/userModel');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const AppError = require('../api/utils/AppError');
 
 const signTokenAsync = util.promisify(jwt.sign);
+const verifyTokenAsync = util.promisify(jwt.verify);
+
+async function routeProtection(req, res, next) {
+  try {
+    const { authorization } = req.headers;
+
+    if (!authorization) {
+      throw new AppError('Error. Please log in to view page.', 400);
+    }
+
+    if (!authorization.startsWith('Bearer')) {
+      throw new AppError('Error. Please log in to view page.', 400);
+    }
+
+    const token = authorization.split(' ')[1];
+
+    if (!token) {
+      throw new AppError('Error. Invalid token.', 400);
+    }
+
+    const decoded = await verifyTokenAsync(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
+
+    if (!user) {
+      throw new AppError('Error. User does not exist.', 400);
+    }
+
+    req.user = user;
+    next();
+  } catch (err) {
+    next(err);
+  }
+}
 
 async function signup(req, res, next) {
   try {
@@ -58,4 +92,4 @@ async function login(req, res, next) {
   }
 }
 
-module.exports = { signup, login };
+module.exports = { routeProtection, signup, login };
