@@ -106,7 +106,7 @@ async function forgotPassword(req, res, next) {
     user.save({validateBeforeSave: false});
 
     try {
-      const url = `localhost:8000/api/v1/users/passwordReset/${cryptoToken}/${user.id}`;
+      const url = `localhost:8000/api/v1/users/passwordReset/${cryptoToken}/${user._id}`;
       const message = `Forgot password? Please click on the link below to reset your password: ${url}.`;
 
       await sendEmail({
@@ -133,10 +133,52 @@ async function forgotPassword(req, res, next) {
   }
 }
 
+async function resetPassword(req, res, next) {
+  try {
+    const cryptoToken = req.params.token;
+    const id = req.params.id;
+
+    const user = await User.findById(id);
+
+    if (
+      !user ||
+      !user.passwordResetExpires > Date.now ||
+      !(await bcrypt.compare(cryptoToken, user.passwordResetToken))
+    ) {
+      throw new AppError('User does not exist or token is invalid', 400);
+    }
+
+    user.password = req.body.password;
+    user.passwordConfirm = req.body.passwordConfirm;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+
+    await user.save();
+
+    const token = await signTokenAsync(
+      {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+      process.env.JWT_SECRET,
+      {expiresIn: process.env.JWT_EXPIRES_IN}
+    );
+
+    res.status(200).send({
+      status: 'success',
+      data: {token},
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   routeProtection,
   restrictToAdmin,
   signup,
   login,
   forgotPassword,
+  resetPassword,
 };

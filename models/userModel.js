@@ -39,6 +39,7 @@ const userSchema = mongoose.Schema({
   },
   passwordResetToken: String,
   passwordResetExpires: Date,
+  passwordChangedAt: Date,
   photo: {
     type: String,
     default: 'userImageDefault.jpg',
@@ -54,6 +55,12 @@ userSchema.pre('save', async function () {
 
   this.password = await bcrypt.hash(this.password, 12);
   this.passwordConfirm = undefined;
+});
+
+userSchema.pre('save', function () {
+  if (!this.isModified('password') || this.isNew) return;
+
+  this.passwordChangedAt = Date.now();
 });
 
 const User = mongoose.model('User', userSchema);
