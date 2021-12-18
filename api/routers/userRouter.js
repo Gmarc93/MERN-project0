@@ -9,6 +9,7 @@ router.get('/', (req, res, next) =>
 
 router.post('/signup', authController.signup);
 router.post('/login', authController.login);
+router.post('/forgotPassword', authController.forgotPassword);
 
 router.get('/private', authController.routeProtection, (req, res, next) => {
   res.send('Welcome to the users restricted route!');

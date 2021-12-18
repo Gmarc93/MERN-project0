@@ -1,8 +1,10 @@
 const util = require('util');
+const crypto = require('crypto');
 const User = require('../models/userModel');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const AppError = require('../api/utils/AppError');
+const sendEmail = require('../api/utils/sendEmail');
 
 const signTokenAsync = util.promisify(jwt.sign);
 const verifyTokenAsync = util.promisify(jwt.verify);
@@ -68,10 +70,6 @@ async function signup(req, res, next) {
 }
 
 async function login(req, res, next) {
-  // 1) lookup user with email, exit if false
-  // 2) encrypt password and check if it matches password in db, exit if false
-  // 3) return token
-
   try {
     const user = await User.findOne({email: req.body.email});
 
@@ -95,4 +93,50 @@ async function login(req, res, next) {
   }
 }
 
-module.exports = {routeProtection, restrictToAdmin, signup, login};
+async function forgotPassword(req, res, next) {
+  try {
+    const user = await User.findOne({email: req.body.email});
+    if (!user) throw new AppError('User does not exist', 400);
+
+    const cryptoToken = crypto.randomBytes(32).toString('hex');
+    const bcryptToken = await bcrypt.hash(cryptoToken, 12);
+
+    user.passwordResetToken = bcryptToken;
+    user.passwordResetExpires = Date.now() + 1000 * 60 * 10;
+    user.save({validateBeforeSave: false});
+
+    try {
+      const url = `localhost:8000/api/v1/users/passwordReset/${cryptoToken}/${user.id}`;
+      const message = `Forgot password? Please click on the link below to reset your password: ${url}.`;
+
+      await sendEmail({
+        email: user.email,
+        subject: 'Password reset token (expires in 10 min.)',
+        message,
+      });
+
+      res.status(200).send({
+        status: 'success',
+        message: 'Password reset token sent to email.',
+      });
+    } catch (err) {
+      user.passwordResetToken = undefined;
+      user.passwordResetExpires = undefined;
+      user.save({validateBeforeSave: false});
+
+      return next(
+        new AppError('Unable to send email. Please try again later.', 500)
+      );
+    }
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = {
+  routeProtection,
+  restrictToAdmin,
+  signup,
+  login,
+  forgotPassword,
+};
