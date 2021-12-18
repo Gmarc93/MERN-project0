@@ -14,4 +14,13 @@ router.get('/private', authController.routeProtection, (req, res, next) => {
   res.send('Welcome to the users restricted route!');
 });
 
+router.get(
+  '/privateAdmin',
+  authController.routeProtection,
+  authController.restrictToAdmin,
+  (req, res, next) => {
+    res.send('Welcome to the admins restricted route!');
+  }
+);
+
 module.exports = router;

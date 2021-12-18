@@ -9,7 +9,7 @@ const verifyTokenAsync = util.promisify(jwt.verify);
 
 async function routeProtection(req, res, next) {
   try {
-    const { authorization } = req.headers;
+    const {authorization} = req.headers;
 
     if (!authorization) {
       throw new AppError('Error. Please log in to view page.', 400);
@@ -20,11 +20,6 @@ async function routeProtection(req, res, next) {
     }
 
     const token = authorization.split(' ')[1];
-
-    if (!token) {
-      throw new AppError('Error. Invalid token.', 400);
-    }
-
     const decoded = await verifyTokenAsync(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.id);
 
@@ -37,6 +32,14 @@ async function routeProtection(req, res, next) {
   } catch (err) {
     next(err);
   }
+}
+
+function restrictToAdmin(req, res, next) {
+  if (req.user.role !== 'admin')
+    return next(
+      new AppError('You do not have permission to view this page.', 400)
+    );
+  next();
 }
 
 async function signup(req, res, next) {
@@ -55,10 +58,10 @@ async function signup(req, res, next) {
         email: user.email,
       },
       process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN }
+      {expiresIn: process.env.JWT_EXPIRES_IN}
     );
 
-    res.status(201).send({ status: 'success', data: { token } });
+    res.status(201).send({status: 'success', data: {token}});
   } catch (err) {
     next(err);
   }
@@ -70,7 +73,7 @@ async function login(req, res, next) {
   // 3) return token
 
   try {
-    const user = await User.findOne({ email: req.body.email });
+    const user = await User.findOne({email: req.body.email});
 
     if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
       throw new AppError('Incorrect email or passowrd. Please try again.', 400);
@@ -83,13 +86,13 @@ async function login(req, res, next) {
         email: user.email,
       },
       process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN }
+      {expiresIn: process.env.JWT_EXPIRES_IN}
     );
 
-    res.status(200).send({ status: 'success', data: { token } });
+    res.status(200).send({status: 'success', data: {token}});
   } catch (err) {
     next(err);
   }
 }
 
-module.exports = { routeProtection, signup, login };
+module.exports = {routeProtection, restrictToAdmin, signup, login};
