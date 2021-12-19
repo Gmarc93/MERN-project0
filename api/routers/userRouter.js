@@ -26,6 +26,12 @@ router.patch(
   userController.updateUser
 );
 
+router.delete(
+  '/deleteUser',
+  authController.routeProtection,
+  userController.deleteUser
+);
+
 router.get('/private', authController.routeProtection, (req, res, next) => {
   res.send('Welcome to the users restricted route!');
 });

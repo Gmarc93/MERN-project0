@@ -22,4 +22,14 @@ async function updateUser(req, res, next) {
   }
 }
 
-module.exports = {updateUser};
+async function deleteUser(req, res, next) {
+  try {
+    await User.deleteOne({id: req.id});
+
+    res.status(200).send({status: 'success', message: 'User deleted.'});
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = {updateUser, deleteUser};
