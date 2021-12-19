@@ -174,6 +174,34 @@ async function resetPassword(req, res, next) {
   }
 }
 
+async function updatePassword(req, res, next) {
+  try {
+    const {user} = req;
+    if (!(await bcrypt.compare(req.body.currentPassword, user.password))) {
+      throw new AppError('User does not exist or passwords do not match.', 400);
+    }
+
+    user.password = req.body.newPassword;
+    user.passwordConfirm = req.body.newPasswordConfirm;
+
+    await user.save();
+
+    const token = await signTokenAsync(
+      {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+      process.env.JWT_SECRET,
+      {expiresIn: process.env.JWT_EXPIRES_IN}
+    );
+
+    res.status(201).send({status: 'success', data: {token}});
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   routeProtection,
   restrictToAdmin,
@@ -181,4 +209,5 @@ module.exports = {
   login,
   forgotPassword,
   resetPassword,
+  updatePassword,
 };
