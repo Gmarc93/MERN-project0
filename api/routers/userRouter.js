@@ -1,5 +1,6 @@
 const express = require('express');
 const authController = require('../../controllers/authController');
+const userController = require('../../controllers/userController');
 
 const router = express.Router();
 
@@ -17,6 +18,12 @@ router.patch(
   '/updatePassword',
   authController.routeProtection,
   authController.updatePassword
+);
+
+router.patch(
+  '/updateUser',
+  authController.routeProtection,
+  userController.updateUser
 );
 
 router.get('/private', authController.routeProtection, (req, res, next) => {
