@@ -69,66 +69,41 @@ async function signup(req, res, next) {
   }
 }
 
-async function login(req, res, next) {
-  try {
-    const user = await User.findOne({email: req.body.email});
-
-    if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
-      throw new AppError('Incorrect email or passowrd. Please try again.', 400);
-    }
-
-    const token = await signTokenAsync(
-      {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-      },
-      process.env.JWT_SECRET,
-      {expiresIn: process.env.JWT_EXPIRES_IN}
-    );
-
-    res.status(200).send({status: 'success', data: {token}});
-  } catch (err) {
-    next(err);
-  }
-}
-
 async function forgotPassword(req, res, next) {
+  let user = undefined;
   try {
-    const user = await User.findOne({email: req.body.email});
-    if (!user) throw new AppError('User does not exist', 400);
+    // locate user with email
+    user = await User.findOne({ email: req.body.email });
+    if (!user) throw new AppError('User does not exist.', 404);
 
+    // create and save password token
     const cryptoToken = crypto.randomBytes(32).toString('hex');
     const bcryptToken = await bcrypt.hash(cryptoToken, 12);
 
     user.passwordResetToken = bcryptToken;
-    user.passwordResetExpires = Date.now() + 1000 * 60 * 10;
-    user.save({validateBeforeSave: false});
+    user.passwordResetExpires = Date.now() + 1000 * 60 * 15;
+    user.save({ validateBeforeSave: false });
 
-    try {
-      const url = `localhost:8000/api/v1/users/passwordReset/${cryptoToken}/${user.id}`;
-      const message = `Forgot password? Please click on the link below to reset your password: ${url}.`;
+    // send link to user's email
+    const url = `localhost:8000/api/v1/users/passwordReset/${cryptoToken}/${user.id}`;
+    const message = `Forgot password? Please click on the link below to reset your password: ${url}.`;
 
-      await sendEmail({
-        email: user.email,
-        subject: 'Password reset token (expires in 10 min.)',
-        message,
-      });
+    const info = await sendEmail({
+      email: user.email,
+      subject: 'Password Reset (expires in 10 min)',
+      message,
+    });
 
-      res.status(200).send({
-        status: 'success',
-        message: 'Password reset token sent to email.',
-      });
-    } catch (err) {
+    res.status(200).send({
+      status: 'success',
+      message: 'Reset token sent to email address.',
+    });
+  } catch (err) {
+    if (user) {
       user.passwordResetToken = undefined;
       user.passwordResetExpires = undefined;
-      user.save({validateBeforeSave: false});
-
-      return next(
-        new AppError('Unable to send email. Please try again later.', 500)
-      );
+      user.save({ validateBeforeSave: false });
     }
-  } catch (err) {
     next(err);
   }
 }
