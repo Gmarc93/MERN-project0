@@ -1,8 +1,11 @@
+'use strict';
+
 const util = require('util');
 const User = require('../models/userModel');
-const sendResponseToken = require('../api/utils/sendResponse');
+const jwt = require('jsonwebtoken');
 
-// const signTokenAsync = util.promisify(jwt.sign);
+// Promisify JWT functions
+const signTokenAsync = util.promisify(jwt.sign);
 
 async function signup(req, res, next) {
   let user = undefined;
@@ -14,14 +17,35 @@ async function signup(req, res, next) {
       passwordConfirm: req.body.passwordConfirm,
     });
 
-    await sendResponseToken(user, res, 201);
-  } catch (err) {
-    if (!user) return next(err);
+    const token = await signTokenAsync(
+      {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+      process.env.JWT_SECRET,
+      {expiresIn: process.env.JWT_EXPIRES_IN}
+    );
 
-    user = await User.deleteOne({_id: user.id});
+    res
+      .status(201)
+      .cookie('jwt', token, {
+        expires: new Date(
+          Date.now() + 1000 * 60 * process.env.JWT_COOKIE_EXPIRES_IN
+        ),
+        httpOnly: true, // Cookie is only accessible by web server
+        // secure: true,
+      })
+      .send({status: 'success', data: {token}});
+  } catch (err) {
+    // Delete user if created and response if unsuccessful
+    if (user) await User.deleteOne({_id: user._id});
     next(err);
   }
 }
 
-module.exports = {signup};
-1;
+async function login(req, res, next) {
+  res.send('Welcome to the login page!');
+}
+
+module.exports = {signup, login};
