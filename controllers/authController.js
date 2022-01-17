@@ -1,13 +1,18 @@
+'use strict';
+
 const util = require('util');
 const User = require('../models/userModel');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const AppError = require('../api/utils/AppError');
 
+// Promisify JWT functions
 const signTokenAsync = util.promisify(jwt.sign);
 
 async function signup(req, res, next) {
+  let user = undefined;
   try {
-    const user = await User.create({
+    user = await User.create({
       name: req.body.name,
       email: req.body.email,
       password: req.body.password,
@@ -21,25 +26,32 @@ async function signup(req, res, next) {
         email: user.email,
       },
       process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN }
+      {expiresIn: process.env.JWT_EXPIRES_IN}
     );
 
-    res.status(201).send({ status: 'success', data: { token } });
+    res
+      .status(201)
+      .cookie('jwt', token, {
+        expires: new Date(
+          Date.now() + 1000 * 60 * process.env.JWT_COOKIE_EXPIRES_IN
+        ),
+        httpOnly: true, // Cookie is only accessible by web server
+        // secure: true,
+      })
+      .send({status: 'success', data: {token}});
   } catch (err) {
+    // Delete user if created and response is unsuccessful
+    if (user) await User.deleteOne({_id: user._id});
     next(err);
   }
 }
 
 async function login(req, res, next) {
-  // 1) lookup user with email, exit if false
-  // 2) encrypt password and check if it matches password in db, exit if false
-  // 3) return token
-
   try {
-    const user = await User.findOne({ email: req.body.email });
+    const user = await User.findOne({email: req.body.email});
 
     if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
-      throw new AppError('Incorrect email or passowrd. Please try again.', 400);
+      throw new AppError('Incorrect email or password. Please try again', 400);
     }
 
     const token = await signTokenAsync(
@@ -49,13 +61,22 @@ async function login(req, res, next) {
         email: user.email,
       },
       process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN }
+      {expiresIn: process.env.JWT_EXPIRES_IN}
     );
 
-    res.status(200).send({ status: 'success', data: { token } });
+    res
+      .status(200)
+      .cookie('jwt', token, {
+        expires: new Date(
+          Date.now() + 1000 * 60 * process.env.JWT_COOKIE_EXPIRES_IN
+        ),
+        httpOnly: true, // Cookie is only accessible by web server
+        // secure: true,
+      })
+      .send({status: 'success', data: {token}});
   } catch (err) {
     next(err);
   }
 }
 
-module.exports = { signup, login };
+module.exports = {signup, login};
