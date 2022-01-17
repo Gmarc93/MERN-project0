@@ -38,7 +38,7 @@ async function signup(req, res, next) {
       })
       .send({status: 'success', data: {token}});
   } catch (err) {
-    // Delete user if created and response if unsuccessful
+    // Delete user if created and response is unsuccessful
     if (user) await User.deleteOne({_id: user._id});
     next(err);
   }
