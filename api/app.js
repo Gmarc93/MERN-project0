@@ -5,12 +5,12 @@ const userRouter = require('./routers/userRouter');
 
 const app = express();
 
+// Routes
 app.get('/', (req, res, next) => res.send('Welcome to the home page!'));
-
 app.use('/api/v1/users', userRouter);
-
 app.all('*', (req, res, next) => next(new AppError('Page not found.', 404)));
 
+// Error handler
 app.use(globalErrorHandler);
 
 module.exports = app;
