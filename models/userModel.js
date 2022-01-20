@@ -55,6 +55,7 @@ userSchema.pre('save', async function (next) {
 
     this.password = await bcrypt.hash(this.password, 12);
     this.passwordConfirm = undefined; // Doesn't need to be saved to DB;
+    next()
   } catch (err) {
     next(err);
   }
