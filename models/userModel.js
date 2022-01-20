@@ -2,21 +2,30 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcrypt');
 
-// Custom validation functions:
+// Custom functions
 function passwordConfirmValidator(val) {
   return val === this.password;
 }
 
+function requiredValidator() {
+  return this._required === true;
+}
+
+// Schema
 const userSchema = mongoose.Schema({
+  _required: {
+    type: Boolean,
+    default: true,
+  },
   name: {
     type: String,
-    required: true,
+    required: requiredValidator,
     trim: true,
     lowercase: true,
   },
   email: {
     type: String,
-    require: true,
+    required: requiredValidator,
     trim: true,
     lowercase: true,
     unique: true,
@@ -24,21 +33,24 @@ const userSchema = mongoose.Schema({
   },
   password: {
     type: String,
+    required: requiredValidator,
     minLength: 8,
-    maxLength: 12,
+    maxLength: 60,
     // select: false
   },
   passwordConfirm: {
     type: String,
+    required: requiredValidator,
     minLength: 8,
-    maxLength: 12,
+    maxLength: 60,
     validate: [
       passwordConfirmValidator,
       'Passwords do not match. Please try again.',
     ],
   },
-  passwordResetToken: String,
-  passwordResetExpires: Date,
+  passwordReset: String,
+  passwordResetExpiresIn: Date,
+  passwordChangedAt: Date,
   photo: {
     type: String,
     default: 'userImageDefault.jpg',
@@ -49,11 +61,16 @@ const userSchema = mongoose.Schema({
   },
 });
 
-userSchema.pre('save', async function () {
-  if (!this.isModified('password')) return;
+userSchema.pre('save', async function (next) {
+  try {
+    if (!this.isModified('password')) return next();
 
-  this.password = await bcrypt.hash(this.password, 12);
-  this.passwordConfirm = undefined;
+    this.password = await bcrypt.hash(this.password, 12);
+    this.passwordConfirm = undefined; // Doesn't need to be saved to DB;
+    next();
+  } catch (err) {
+    next(err);
+  }
 });
 
 const User = mongoose.model('User', userSchema);
