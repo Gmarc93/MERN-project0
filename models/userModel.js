@@ -1,21 +1,31 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const bcrypt = require('bcrypt');
 
-// Custom validation functions:
+// Custom functions
 function passwordConfirmValidator(val) {
   return val === this.password;
 }
 
+function requiredValidator() {
+  return this._required === true;
+}
+
+// Schema
 const userSchema = mongoose.Schema({
+  _required: {
+    type: Boolean,
+    default: true,
+  },
   name: {
     type: String,
-    required: true,
+    required: requiredValidator,
     trim: true,
     lowercase: true,
   },
   email: {
     type: String,
-    required: true,
+    required: requiredValidator,
     trim: true,
     lowercase: true,
     unique: true,
@@ -23,16 +33,16 @@ const userSchema = mongoose.Schema({
   },
   password: {
     type: String,
-    required: true,
+    required: requiredValidator,
     minLength: 8,
-    maxLength: 12,
+    maxLength: 60,
     // select: false
   },
   passwordConfirm: {
     type: String,
-    required: true,
+    required: requiredValidator,
     minLength: 8,
-    maxLength: 12,
+    maxLength: 60,
     validate: [
       passwordConfirmValidator,
       'Passwords do not match. Please try again.',
