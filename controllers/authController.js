@@ -202,7 +202,7 @@ async function resetPassword(req, res, next) {
 async function updatePassword(req, res, next) {
   try {
     const user = req.user;
-    if (!(await bcrypt.compare(req.body.password, user.password))) {
+    if (!req.body.password || !(await bcrypt.compare(req.body.password, user.password))) {
       throw new AppError('Incorrect password. Please try again.', 400);
     }
 
