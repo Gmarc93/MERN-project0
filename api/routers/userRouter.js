@@ -3,13 +3,10 @@ const authController = require('../../controllers/authController');
 
 const router = express.Router();
 
-router.get('/', (req, res, next) =>
-  res.send('Welcome to the users home page!')
-);
+router.get('/', (req, res) => res.send('Welcome to the users home page!'));
 
 router.post('/signup', authController.signup);
 router.post('/login', authController.login);
-
 router.post('/forgotPassword', authController.forgotPassword);
 router.patch('/resetPassword/:token/:id', authController.resetPassword);
 
@@ -19,16 +16,16 @@ router.patch(
   authController.updatePassword
 );
 
-router.get('/private', authController.routeProtection, (req, res, next) => {
-  res.send('Welcome to the users restricted route!');
+router.get('/private', authController.routeProtection, (req, res) => {
+  res.send('Welcome to the private page!');
 });
 
 router.get(
   '/privateAdmin',
   authController.routeProtection,
   authController.restrictToAdmin,
-  (req, res, next) => {
-    res.send('Welcome to the admins restricted route!');
+  (req, res) => {
+    res.send('Welcome to the privateAdmin page!');
   }
 );
 
