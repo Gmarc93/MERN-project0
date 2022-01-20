@@ -16,7 +16,7 @@ const userSchema = mongoose.Schema({
   },
   email: {
     type: String,
-    require: true,
+    required: true,
     trim: true,
     lowercase: true,
     unique: true,
@@ -24,12 +24,14 @@ const userSchema = mongoose.Schema({
   },
   password: {
     type: String,
+    required: true,
     minLength: 8,
     maxLength: 12,
     // select: false
   },
   passwordConfirm: {
     type: String,
+    required: true,
     minLength: 8,
     maxLength: 12,
     validate: [
@@ -47,11 +49,16 @@ const userSchema = mongoose.Schema({
   },
 });
 
-userSchema.pre('save', async function () {
-  if (!this.isModified('password')) return;
+userSchema.pre('save', async function (next) {
+  try {
+    if (!this.isModified('password')) return next();
 
-  this.password = await bcrypt.hash(this.password, 12);
-  this.passwordConfirm = undefined;
+    this.password = await bcrypt.hash(this.password, 12);
+    this.passwordConfirm = undefined; // Doesn't need to be saved to DB;
+    next()
+  } catch (err) {
+    next(err);
+  }
 });
 
 const User = mongoose.model('User', userSchema);
