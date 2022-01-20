@@ -67,6 +67,7 @@ userSchema.pre('save', async function (next) {
 
     this.password = await bcrypt.hash(this.password, 12);
     this.passwordConfirm = undefined; // Doesn't need to be saved to DB;
+    next();
   } catch (err) {
     next(err);
   }
@@ -74,10 +75,10 @@ userSchema.pre('save', async function (next) {
 
 userSchema.pre('save', function (next) {
   try {
-    if (!this.isModified('password') || this.isNew) {
-      return next();
-    }
+    if (!this.isModified('password') || this.isNew) return next();
+
     this.passwordChangedAt = Date.now();
+    next();
   } catch (err) {
     next(err);
   }
