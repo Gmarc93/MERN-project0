@@ -1,0 +1,41 @@
+Date : 2022-01-20 18:28:24
+Directory : c:\Users\Gianm\Desktop\MERN-project0
+Total : 11 files,  2499 codes, 24 comments, 97 blanks, all 2620 lines
+
+Languages
++------------+------------+------------+------------+------------+------------+
+| language   | files      | code       | comment    | blank      | total      |
++------------+------------+------------+------------+------------+------------+
+| JSON       |          2 |      2,022 |          0 |          2 |      2,024 |
+| JavaScript |          9 |        477 |         24 |         95 |        596 |
++------------+------------+------------+------------+------------+------------+
+
+Directories
++----------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                 | files      | code       | comment    | blank      | total      |
++----------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                    |         11 |      2,499 |         24 |         97 |      2,620 |
+| api                                                                  |          5 |        110 |         12 |         35 |        157 |
+| api\routers                                                          |          1 |         36 |          0 |         10 |         46 |
+| api\utils                                                            |          3 |         63 |          9 |         19 |         91 |
+| controllers                                                          |          2 |        263 |          9 |         43 |        315 |
+| models                                                               |          1 |         77 |          3 |         10 |         90 |
++----------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++----------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| filename                                                             | language   | code       | comment    | blank      | total      |
++----------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| c:\Users\Gianm\Desktop\MERN-project0\api\app.js                      | JavaScript |         11 |          3 |          6 |         20 |
+| c:\Users\Gianm\Desktop\MERN-project0\api\routers\userRouter.js       | JavaScript |         36 |          0 |         10 |         46 |
+| c:\Users\Gianm\Desktop\MERN-project0\api\utils\AppError.js           | JavaScript |         11 |          2 |          6 |         19 |
+| c:\Users\Gianm\Desktop\MERN-project0\api\utils\globalErrorHandler.js | JavaScript |         27 |          6 |          7 |         40 |
+| c:\Users\Gianm\Desktop\MERN-project0\api\utils\sendEmail.js          | JavaScript |         25 |          1 |          6 |         32 |
+| c:\Users\Gianm\Desktop\MERN-project0\controllers\authController.js   | JavaScript |        212 |          6 |         33 |        251 |
+| c:\Users\Gianm\Desktop\MERN-project0\controllers\userController.js   | JavaScript |         51 |          3 |         10 |         64 |
+| c:\Users\Gianm\Desktop\MERN-project0\models\userModel.js             | JavaScript |         77 |          3 |         10 |         90 |
+| c:\Users\Gianm\Desktop\MERN-project0\package-lock.json               | JSON       |      1,992 |          0 |          1 |      1,993 |
+| c:\Users\Gianm\Desktop\MERN-project0\package.json                    | JSON       |         30 |          0 |          1 |         31 |
+| c:\Users\Gianm\Desktop\MERN-project0\server.js                       | JavaScript |         27 |          0 |          7 |         34 |
+| Total                                                                |            |      2,499 |         24 |         97 |      2,620 |
++----------------------------------------------------------------------+------------+------------+------------+------------+------------+
