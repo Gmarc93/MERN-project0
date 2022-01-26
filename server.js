@@ -1,13 +1,15 @@
-const path = require('path');
-const dotenv = require('dotenv');
-const mongoose = require('mongoose');
-const app = require('./api/app');
+'use strict';
 
 process.on('uncaughtException', (err) => {
   console.log('ERROR: UNCAUGHT EXCEPTION ---');
   console.log(err);
   process.exit(1);
 });
+
+const path = require('path');
+const dotenv = require('dotenv');
+const mongoose = require('mongoose');
+const app = require('./api/app');
 
 dotenv.config({path: path.join(__dirname, '/config/config.env')});
 
