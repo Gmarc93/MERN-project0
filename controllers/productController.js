@@ -30,7 +30,10 @@ async function createProduct(req, res, next) {
 
 async function getProduct(req, res, next) {
   try {
-    const product = await Product.findById(req.params.id);
+    const product = await Product.findById(req.params.id).select(
+      '_id name description price imageCover'
+      // The code above may be put into a pre hook
+    );
 
     if (!product) throw new AppError('Product does not exist.', 404);
 
@@ -39,13 +42,7 @@ async function getProduct(req, res, next) {
     res.status(201).send({
       satus: 'success',
       data: {
-        product: {
-          id: product._id,
-          name: product.name,
-          description: product.description,
-          price: product.price,
-          imageCover: product.imageCover,
-        },
+        product,
       },
     });
   } catch (err) {
