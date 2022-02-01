@@ -7,7 +7,8 @@ function requiredValidator() {
   return this._required === true;
 }
 
-function remove_id__v(doc, res, options) {
+function removeFields(doc, res, options) {
+  delete res._required;
   delete res._id;
   delete res.__v;
 }
@@ -52,19 +53,10 @@ const productSchema = mongoose.Schema(
     },
   },
   {
-    // Virtuals will be visible on res.send()
-    toJSON: {virtuals: true, transform: remove_id__v},
-
-    // Virtuals will be virible on console.log()
-    toObject: {virtuals: true, transform: remove_id__v},
+    toJSON: {virtuals: true, transform: removeFields},
+    toObject: {virtuals: true, transform: removeFields},
   }
 );
-
-productSchema.virtual('reviews', {
-  ref: 'Review',
-  localField: '_id',
-  foreignField: 'product',
-});
 
 const Product = mongoose.model('Product', productSchema);
 
