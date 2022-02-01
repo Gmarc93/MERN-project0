@@ -30,13 +30,15 @@ async function createProduct(req, res, next) {
 
 async function getProduct(req, res, next) {
   try {
-    const product = await Product.findById(req.params.id).select(
-      '_id name description price imageCover'
-      // The code above may be put into a pre hook
-    );
+    const product = await Product.findById(req.params.id)
+      .select(
+        '-_required'
+        // The code above may be put into a pre hook
+      )
+      .populate('reviews', '-_required');
 
+    // Need to implement limits or pagination for total reviews
     if (!product) throw new AppError('Product does not exist.', 404);
-
     // Make sure to add id cast error into globalErrorHandler in the future
 
     res.status(201).send({

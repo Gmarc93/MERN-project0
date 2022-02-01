@@ -10,45 +10,43 @@ function requiredValidator() {
 function remove_id__v(doc, res, options) {
   delete res._id;
   delete res.__v;
+  delete res._required;
 }
 
 // Schema
-const productSchema = mongoose.Schema(
+const reviewSchema = mongoose.Schema(
   {
     _required: {
       type: Boolean,
       default: true,
     },
-    name: {
+    summary: {
       type: String,
-      required: requiredValidator,
-      unique: true,
       trim: true,
       lowercase: true,
-      maxlength: 40,
+      maxLength: 300,
     },
-    description: {
-      type: String,
-      required: requiredValidator,
-      trim: true,
-      lowercase: true,
-    },
-    price: {
-      type: Number,
-      required: requiredValidator,
-    },
-    ratingsAverage: {
+    rating: {
       type: Number,
       min: 1,
       max: 5,
+      required: requiredValidator,
     },
-    ratingsQuantity: {
-      type: Number,
-      default: 0,
+    // Can be implemented for other models.
+    createdAt: {
+      type: Date,
+      default: Date.now,
     },
-    imageCover: {
-      type: String,
-      default: 'productImageDefault.jpg',
+    // Parent referencing
+    product: {
+      type: mongoose.Types.ObjectId,
+      ref: 'Product',
+      required: requiredValidator,
+    },
+    user: {
+      type: mongoose.Types.ObjectId,
+      ref: 'User',
+      required: requiredValidator,
     },
   },
   {
@@ -60,12 +58,12 @@ const productSchema = mongoose.Schema(
   }
 );
 
-productSchema.virtual('reviews', {
-  ref: 'Review',
-  localField: '_id',
-  foreignField: 'product',
+reviewSchema.pre(/^find/, function (next) {
+  this.populate('user', 'name');
+
+  next();
 });
 
-const Product = mongoose.model('Product', productSchema);
+const Review = mongoose.model('Review', reviewSchema);
 
-module.exports = Product;
+module.exports = Review;

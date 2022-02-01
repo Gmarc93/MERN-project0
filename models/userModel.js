@@ -13,55 +13,70 @@ function requiredValidator() {
   return this._required === true;
 }
 
+function remove_id__v(doc, res, options) {
+  delete res._id;
+  delete res.__v;
+  delete res._required;
+}
+
 // Schema
-const userSchema = mongoose.Schema({
-  _required: {
-    type: Boolean,
-    default: true,
+const userSchema = mongoose.Schema(
+  {
+    _required: {
+      type: Boolean,
+      default: true,
+    },
+    name: {
+      type: String,
+      required: requiredValidator,
+      trim: true,
+      lowercase: true,
+    },
+    email: {
+      type: String,
+      required: requiredValidator,
+      trim: true,
+      lowercase: true,
+      unique: true,
+      validate: validator.isEmail,
+    },
+    password: {
+      type: String,
+      required: requiredValidator,
+      minLength: 8,
+      maxLength: 60,
+      // select: false
+    },
+    passwordConfirm: {
+      type: String,
+      required: requiredValidator,
+      minLength: 8,
+      maxLength: 60,
+      validate: [
+        passwordConfirmValidator,
+        'Passwords do not match. Please try again.',
+      ],
+    },
+    passwordReset: String,
+    passwordResetExpiresIn: Date,
+    passwordChangedAt: Date,
+    photo: {
+      type: String,
+      default: 'userImageDefault.jpg',
+    },
+    role: {
+      type: String,
+      default: 'user',
+    },
   },
-  name: {
-    type: String,
-    required: requiredValidator,
-    trim: true,
-    lowercase: true,
-  },
-  email: {
-    type: String,
-    required: requiredValidator,
-    trim: true,
-    lowercase: true,
-    unique: true,
-    validate: validator.isEmail,
-  },
-  password: {
-    type: String,
-    required: requiredValidator,
-    minLength: 8,
-    maxLength: 60,
-    // select: false
-  },
-  passwordConfirm: {
-    type: String,
-    required: requiredValidator,
-    minLength: 8,
-    maxLength: 60,
-    validate: [
-      passwordConfirmValidator,
-      'Passwords do not match. Please try again.',
-    ],
-  },
-  passwordReset: String,
-  passwordResetExpiresIn: Date,
-  passwordChangedAt: Date,
-  photo: {
-    type: String,
-    default: 'userImageDefault.jpg',
-  },
-  role: {
-    type: String,
-    default: 'user',
-  },
-});
+  {
+    // Virtuals will be visible on res.send()
+    toJSON: {virtuals: true, transform: remove_id__v},
+
+    // Virtuals will be virible on console.log()
+    toObject: {virtuals: true, transform: remove_id__v},
+  }
+);
 
 userSchema.pre('save', async function (next) {
   try {

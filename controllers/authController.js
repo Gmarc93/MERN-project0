@@ -76,7 +76,7 @@ async function signup(req, res, next) {
         httpOnly: true, // Cookie is only accessible by web server
         // secure: true,
       })
-      .send({status: 'success', data: {token}});
+      .send({status: 'success', data: user});
   } catch (err) {
     // Delete user if created and response is unsuccessful
     if (user) await User.deleteOne({_id: user._id});
