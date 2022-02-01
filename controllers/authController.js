@@ -58,13 +58,11 @@ async function signup(req, res, next) {
     });
 
     const token = await signTokenAsync(
-      {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-      },
+      user.toObject(),
       process.env.JWT_SECRET,
-      {expiresIn: process.env.JWT_EXPIRES_IN}
+      {
+        expiresIn: process.env.JWT_EXPIRES_IN,
+      }
     );
 
     res
@@ -93,13 +91,11 @@ async function login(req, res, next) {
     }
 
     const token = await signTokenAsync(
-      {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-      },
+      user.toObject(),
       process.env.JWT_SECRET,
-      {expiresIn: process.env.JWT_EXPIRES_IN}
+      {
+        expiresIn: process.env.JWT_EXPIRES_IN,
+      }
     );
 
     res
@@ -175,13 +171,11 @@ async function resetPassword(req, res, next) {
     await user.save();
 
     const token = await signTokenAsync(
-      {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-      },
+      user.toObject(),
       process.env.JWT_SECRET,
-      {expiresIn: process.env.JWT_EXPIRES_IN}
+      {
+        expiresIn: process.env.JWT_EXPIRES_IN,
+      }
     );
 
     res
@@ -215,13 +209,11 @@ async function updatePassword(req, res, next) {
     await user.save();
 
     const token = await signTokenAsync(
-      {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-      },
+      user.toObject(),
       process.env.JWT_SECRET,
-      {expiresIn: process.env.JWT_EXPIRES_IN}
+      {
+        expiresIn: process.env.JWT_EXPIRES_IN,
+      }
     );
 
     res

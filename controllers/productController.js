@@ -14,13 +14,7 @@ async function createProduct(req, res, next) {
     res.status(201).send({
       satus: 'success',
       data: {
-        product: {
-          id: product._id,
-          name: product.name,
-          description: product.description,
-          price: product.price,
-          imageCover: product.imageCover,
-        },
+        product,
       },
     });
   } catch (err) {
@@ -30,10 +24,7 @@ async function createProduct(req, res, next) {
 
 async function getProduct(req, res, next) {
   try {
-    const product = await Product.findById(req.params.id).select(
-      '_id name description price imageCover'
-      // The code above may be put into a pre hook
-    );
+    const product = await Product.findById(req.params.id);
 
     if (!product) throw new AppError('Product does not exist.', 404);
 
@@ -52,9 +43,7 @@ async function getProduct(req, res, next) {
 
 async function getAllProducts(req, res, next) {
   try {
-    const products = await Product.find().select(
-      '_id name description price imageCover'
-    );
+    const products = await Product.find();
 
     res.status(201).send({
       satus: 'success',
