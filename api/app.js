@@ -9,6 +9,7 @@ const AppError = require('./utils/AppError');
 const globalErrorHandler = require('./utils/globalErrorHandler');
 const userRouter = require('./routers/userRouter');
 const productRouter = require('./routers/productRouter');
+const reviewRouter = require('./routers/reviewRouter');
 
 // Initialization
 const app = express();
@@ -31,6 +32,7 @@ app.use('/api', limiter);
 app.get('/', (req, res, next) => res.send('Welcome to the home page!'));
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/products', productRouter);
+app.use('/api/v1/reviews', reviewRouter);
 app.all('*', (req, res, next) => next(new AppError('Page not found.', 404)));
 
 // Error handler

@@ -32,6 +32,7 @@ async function routeProtection(req, res, next) {
     if (!user) throw new AppError('User no longer exists.', 400);
 
     req.user = user;
+    req.decoded = decoded;
     next();
   } catch (err) {
     next(err);
