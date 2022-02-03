@@ -37,6 +37,9 @@ const reviewSchema = mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    modifiedAt: {
+      type: Date,
+    },
 
     // Embedded documents that will be populated upon query
     user: {
@@ -53,6 +56,13 @@ const reviewSchema = mongoose.Schema(
     toObject: {virtuals: true, transform: removeFields},
   }
 );
+
+reviewSchema.pre('save', function (next) {
+  if (!this.isModified('summary rating') || this.isNew) return next();
+
+  this.modifiedAt = Date.now();
+  next();
+});
 
 reviewSchema.pre(/^find/, function (next) {
   this.populate('user', '-email');

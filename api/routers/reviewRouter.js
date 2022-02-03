@@ -6,9 +6,13 @@ const router = express.Router();
 
 router
   .route('/')
-  .get((req, res) => res.send('Welcome to the reviews page!'))
+  .get(reviewController.getAllReviews)
   .post(authController.routeProtection, reviewController.createReview);
 
-router.route('/:id').get(reviewController.getReview);
+router
+  .route('/:id')
+  .get(reviewController.getReview)
+  .patch(authController.routeProtection, reviewController.updateReview)
+  .delete(authController.routeProtection, reviewController.deleteReview);
 
 module.exports = router;

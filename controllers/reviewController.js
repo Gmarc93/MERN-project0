@@ -30,4 +30,47 @@ async function getReview(req, res, next) {
   }
 }
 
-module.exports = {createReview, getReview};
+async function getAllReviews(req, res, next) {
+  try {
+    const reviews = await Review.find();
+
+    res.status(200).send(reviews);
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function updateReview(req, res, next) {
+  try {
+    const review = await Review.findById(req.params.id);
+
+    review.summary = req.body.summary;
+    review.rating = req.body.rating;
+    review._require = true;
+    await review.save();
+
+    res.status(200).send(review);
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function deleteReview(req, res, next) {
+  try {
+    const review = await Review.findByIdAndDelete(req.params.id);
+
+    if (!review) throw new AppError('Review does not exist.', 404);
+
+    res.status(200).send(review);
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = {
+  createReview,
+  getReview,
+  getAllReviews,
+  updateReview,
+  deleteReview,
+};
