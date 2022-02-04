@@ -9,7 +9,7 @@ async function createReview(req, res, next) {
       summary: req.body.summary,
       rating: req.body.rating,
       user: req.decoded.id,
-      product: req.body.product,
+      product: req.params.id,
     });
 
     res.status(200).send(review);
@@ -43,6 +43,8 @@ async function getAllReviews(req, res, next) {
 async function updateReview(req, res, next) {
   try {
     const review = await Review.findById(req.params.id);
+
+    if (!review) throw new AppError('Review does not exist.', 404);
 
     review.summary = req.body.summary;
     review.rating = req.body.rating;
