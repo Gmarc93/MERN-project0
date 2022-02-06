@@ -3,6 +3,16 @@
 const AppError = require('../api/utils/AppError');
 const Product = require('../models/productModel');
 
+async function verifyExistence(req, res, next) {
+  try {
+    const product = await Product.findById(req.params.productId);
+    if (!product) throw new AppError('Product does not exist.', 404);
+    next();
+  } catch (err) {
+    next(err);
+  }
+}
+
 async function createProduct(req, res, next) {
   try {
     const product = await Product.create({
@@ -43,7 +53,7 @@ async function getProduct(req, res, next) {
 
 async function getAllProducts(req, res, next) {
   try {
-    const products = await Product.find()
+    const products = await Product.find();
 
     res.status(201).send({
       satus: 'success',
@@ -98,6 +108,7 @@ async function deleteProduct(req, res, next) {
 }
 
 module.exports = {
+  verifyExistence,
   createProduct,
   getProduct,
   getAllProducts,
