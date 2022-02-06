@@ -43,7 +43,7 @@ async function getProduct(req, res, next) {
 
 async function getAllProducts(req, res, next) {
   try {
-    const products = await Product.find().populate('reviews');
+    const products = await Product.find()
 
     res.status(201).send({
       satus: 'success',
