@@ -9,7 +9,7 @@ async function createReview(req, res, next) {
       summary: req.body.summary,
       rating: req.body.rating,
       user: req.decoded.id,
-      product: req.params.id,
+      product: req.params.productId,
     });
 
     res.status(200).send(review);
@@ -20,7 +20,7 @@ async function createReview(req, res, next) {
 
 async function getReview(req, res, next) {
   try {
-    const review = await Review.findById(req.params.id);
+    const review = await Review.findById(req.params.reviewId);
 
     if (!review) throw new AppError('Review does not exist.', 404);
 
@@ -32,7 +32,7 @@ async function getReview(req, res, next) {
 
 async function getAllReviews(req, res, next) {
   try {
-    const reviews = await Review.find();
+    const reviews = await Review.find({product: req.params.productId});
 
     res.status(200).send(reviews);
   } catch (err) {
@@ -42,7 +42,7 @@ async function getAllReviews(req, res, next) {
 
 async function updateReview(req, res, next) {
   try {
-    const review = await Review.findById(req.params.id);
+    const review = await Review.findById(req.params.reviewId);
 
     if (!review) throw new AppError('Review does not exist.', 404);
 
@@ -59,11 +59,22 @@ async function updateReview(req, res, next) {
 
 async function deleteReview(req, res, next) {
   try {
-    const review = await Review.findByIdAndDelete(req.params.id);
+    const review = await Review.findByIdAndDelete(req.params.reviewId);
 
     if (!review) throw new AppError('Review does not exist.', 404);
 
     res.status(200).send(review);
+  } catch (err) {
+    next(err);
+  }
+}
+
+// This function should only be used in development
+async function deleteAllReviews(req, res, next) {
+  try {
+    await Review.deleteMany();
+
+    res.send('Reviews deleted');
   } catch (err) {
     next(err);
   }
@@ -75,4 +86,5 @@ module.exports = {
   getAllReviews,
   updateReview,
   deleteReview,
+  deleteAllReviews,
 };
