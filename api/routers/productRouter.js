@@ -1,8 +1,16 @@
 const express = require('express');
 const authController = require('../../controllers/authController');
 const productController = require('../../controllers/productController');
+const reviewRouter = require('../routers/reviewRouter');
 
 const router = express.Router();
+
+// Allows all reviews or single review
+router.use(
+  '/:productId/reviews',
+  productController.verifyExistence,
+  reviewRouter
+);
 
 router
   .route('/')
@@ -15,7 +23,7 @@ router
 
 router
   .route('/:id')
-  .get(productController.getProduct)
+  .get(productController.getProduct) // Only 3 reviews will populate
   .patch(
     authController.routeProtection,
     authController.restrictToAdmin,
