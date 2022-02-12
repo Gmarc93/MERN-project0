@@ -2,7 +2,9 @@
 
 const AppError = require('../api/utils/AppError');
 const Product = require('../models/productModel');
+const CRUD = require('../api/utils/crud');
 
+// Middleware
 async function verifyExistence(req, res, next) {
   try {
     const product = await Product.findById(req.params.productId);
@@ -13,99 +15,17 @@ async function verifyExistence(req, res, next) {
   }
 }
 
-async function createProduct(req, res, next) {
-  try {
-    const product = await Product.create({
-      name: req.body.name,
-      description: req.body.description,
-      price: req.body.price,
-    });
+// CRUD filters
+const createOneFilter = ['name', 'description', 'price', 'imageCover'];
+const updateOneFilter = ['name', 'description', 'price', 'imageCover'];
 
-    res.status(201).send({
-      satus: 'success',
-      data: {
-        product,
-      },
-    });
-  } catch (err) {
-    next(err);
-  }
-}
-
-async function getProduct(req, res, next) {
-  try {
-    const product = await Product.findById(req.params.id);
-
-    if (!product) throw new AppError('Product does not exist.', 404);
-
-    // Make sure to add id cast error into globalErrorHandler in the future
-
-    res.status(201).send({
-      satus: 'success',
-      data: {
-        product,
-      },
-    });
-  } catch (err) {
-    next(err);
-  }
-}
-
-async function getAllProducts(req, res, next) {
-  try {
-    const products = await Product.find();
-
-    res.status(201).send({
-      satus: 'success',
-      data: {
-        products,
-      },
-    });
-  } catch (err) {
-    next(err);
-  }
-}
-
-async function updateProduct(req, res, next) {
-  try {
-    const product = await Product.findById(req.params.id);
-
-    if (!product) throw new AppError('Product does not exist.', 404);
-
-    //name, description, price, imageCover
-
-    product.name = req.body.name || product.name;
-    product.description = req.body.description || product.description;
-    product.price = req.body.price || product.price;
-    product.imageCover = req.body.imageCover || product.imageCover;
-    product._required = true;
-    await product.save();
-
-    res.status(200).send({
-      satus: 'success',
-      data: {
-        product,
-      },
-    });
-  } catch (err) {
-    next(err);
-  }
-}
-
-async function deleteProduct(req, res, next) {
-  try {
-    const product = await Product.findByIdAndDelete(req.params.id);
-
-    if (!product) throw new AppError('Product does not exist.', 404);
-
-    res.status(200).send({
-      satus: 'success',
-      message: 'Product deleted.',
-    });
-  } catch (err) {
-    next(err);
-  }
-}
+// Controllers
+const createProduct = CRUD.createOne(Product, createOneFilter);
+const getProduct = CRUD.readOne(Product, 'productId');
+const getAllProducts = CRUD.readAll(Product, 'productId');
+const updateProduct = CRUD.updateOne(Product, updateOneFilter, 'productId');
+const deleteProduct = CRUD.deleteOne(Product, 'productId');
+const deleteAllProducts = CRUD.deleteAll(Product);
 
 module.exports = {
   verifyExistence,
@@ -114,4 +34,5 @@ module.exports = {
   getAllProducts,
   updateProduct,
   deleteProduct,
+  deleteAllProducts,
 };

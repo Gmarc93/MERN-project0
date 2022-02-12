@@ -7,7 +7,11 @@ const router = express.Router({mergeParams: true});
 router
   .route('/')
   .get(reviewController.getAllReviews)
-  .post(authController.routeProtection, reviewController.createReview)
+  .post(
+    authController.routeProtection,
+    reviewController.init,
+    reviewController.createReview
+  )
 
   // The middleware below must only be used in development!
   .delete(reviewController.deleteAllReviews);

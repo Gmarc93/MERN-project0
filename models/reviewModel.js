@@ -5,6 +5,8 @@ const Product = require('./productModel');
 
 // Custom functions
 function requiredValidator() {
+  if (this instanceof mongoose.Query) return true;
+
   return this._required === true;
 }
 
@@ -33,7 +35,6 @@ const reviewSchema = mongoose.Schema(
       required: requiredValidator,
       min: 1,
       max: 5,
-      
     },
     createdAt: {
       type: Date,

@@ -1,6 +1,7 @@
 const express = require('express');
 const authController = require('../../controllers/authController');
 const productController = require('../../controllers/productController');
+const reviewController = require('../../controllers/reviewController');
 const reviewRouter = require('../routers/reviewRouter');
 
 const router = express.Router();
@@ -19,10 +20,16 @@ router
     authController.routeProtection,
     authController.restrictToAdmin,
     productController.createProduct
+  )
+  .delete(
+    authController.routeProtection,
+    authController.restrictToAdmin,
+    productController.deleteAllProducts,
+    reviewController.deleteAllReviews
   );
 
 router
-  .route('/:id')
+  .route('/:productId')
   .get(productController.getProduct) // Only 3 reviews will populate
   .patch(
     authController.routeProtection,
@@ -32,7 +39,12 @@ router
   .delete(
     authController.routeProtection,
     authController.restrictToAdmin,
-    productController.deleteProduct
+    productController.deleteProduct,
+
+    // I did not want to require reviewController in the productController
+    // but this is the only way I know how to delete all reviews when deleting
+    // a product. For now...
+    reviewController.deleteAllReviews
   );
 
 module.exports = router;

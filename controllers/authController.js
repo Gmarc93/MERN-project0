@@ -51,12 +51,14 @@ function restrictToAdmin(req, res, next) {
 async function signup(req, res, next) {
   let user = undefined;
   try {
-    user = await User.create({
-      name: req.body.name,
-      email: req.body.email,
-      password: req.body.password,
-      passwordConfirm: req.body.passwordConfirm,
-    });
+    const newReqBody = filterObj(req.body, [
+      'name',
+      'email',
+      'password',
+      'passwordConfirm',
+    ]);
+
+    user = await User.create(newReqBody);
 
     const token = await signTokenAsync(
       user.toObject(),

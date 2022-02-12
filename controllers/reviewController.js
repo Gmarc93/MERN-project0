@@ -2,85 +2,29 @@
 
 const AppError = require('../api/utils/AppError');
 const Review = require('../models/reviewModel');
+const CRUD = require('../api/utils/crud');
 
-async function createReview(req, res, next) {
-  try {
-    const review = await Review.create({
-      summary: req.body.summary,
-      rating: req.body.rating,
-      user: req.decoded.id,
-      product: req.params.productId,
-    });
-
-    res.status(200).send(review);
-  } catch (err) {
-    next(err);
-  }
+// Middleware
+function init(req, res, next) {
+  req.body.product = req.params.productId;
+  req.body.user = req.decoded.id;
+  next();
 }
 
-async function getReview(req, res, next) {
-  try {
-    const review = await Review.findById(req.params.reviewId);
+// CRUD filters
+const createOneFilter = ['summary', 'rating', 'user', 'product'];
+const updateOneFilter = ['summary', 'rating'];
 
-    if (!review) throw new AppError('Review does not exist.', 404);
-
-    res.status(200).send(review);
-  } catch (err) {
-    next(err);
-  }
-}
-
-async function getAllReviews(req, res, next) {
-  try {
-    const reviews = await Review.find({product: req.params.productId});
-
-    res.status(200).send(reviews);
-  } catch (err) {
-    next(err);
-  }
-}
-
-async function updateReview(req, res, next) {
-  try {
-    const review = await Review.findById(req.params.reviewId);
-
-    if (!review) throw new AppError('Review does not exist.', 404);
-
-    review.summary = req.body.summary;
-    review.rating = req.body.rating;
-    review._require = true;
-    await review.save();
-
-    res.status(200).send(review);
-  } catch (err) {
-    next(err);
-  }
-}
-
-async function deleteReview(req, res, next) {
-  try {
-    const review = await Review.findByIdAndDelete(req.params.reviewId);
-
-    if (!review) throw new AppError('Review does not exist.', 404);
-
-    res.status(200).send(review);
-  } catch (err) {
-    next(err);
-  }
-}
-
-// This function should only be used in development
-async function deleteAllReviews(req, res, next) {
-  try {
-    await Review.deleteMany();
-
-    res.send('Reviews deleted');
-  } catch (err) {
-    next(err);
-  }
-}
+// Controllers
+const createReview = CRUD.createOne(Review, createOneFilter);
+const getReview = CRUD.readOne(Review, 'reviewId');
+const getAllReviews = CRUD.readAll(Review, 'productId');
+const updateReview = CRUD.updateOne(Review, updateOneFilter, 'reviewId');
+const deleteReview = CRUD.deleteOne(Review, 'reviewId');
+const deleteAllReviews = CRUD.deleteAll(Review);
 
 module.exports = {
+  init,
   createReview,
   getReview,
   getAllReviews,
