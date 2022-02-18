@@ -1,6 +1,7 @@
 'use strict';
 
 const mongoose = require('mongoose');
+const Review = require('./reviewModel');
 
 // Custom functions
 function requiredValidator() {
@@ -55,6 +56,19 @@ const productSchema = mongoose.Schema(
   {
     toJSON: {virtuals: true, transform: removeFields},
     toObject: {virtuals: true, transform: removeFields},
+  }
+);
+
+productSchema.pre(
+  'deleteOne',
+  {document: true, query: false},
+  async function (next) {
+    try {
+      const result = await Review.deleteMany({product: this.id});
+      next();
+    } catch (err) {
+      next(err);
+    }
   }
 );
 

@@ -117,7 +117,7 @@ function deleteOne(Model, paramId) {
 
       await doc.deleteOne();
 
-      if (Model.modelName === 'Product') return next();
+      // if (Model.modelName === 'Product') return next();
 
       res.status(200).send({
         satus: 'success',
