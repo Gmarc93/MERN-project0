@@ -58,26 +58,15 @@ function readOne(Model, paramId) {
 
 //readAll should be configured to read all products, product reviews, and reviews
 
-function readAll(Model, paramId) {
+function readAll(Model) {
   return async function (req, res, next) {
     try {
-      // getAllReviews through the products/productId/reviews route
-      // requires readAll to specify field as product...
-      // This means Model.modelName.toLowerCase cannot be used on
-      // the find() method like in other CRUD functions
+      docs = await Model.find();
 
-      let field = `${Model.modelName.toLowerCase()}`;
-      const paramName = paramId.split('Id')[0];
-
-      if (field !== paramName) {
-        field = paramName;
-      }
-
-      const docs = await Model.find({
-        [field]: req.params[paramId],
+      res.status(200).send({
+        status: 'success',
+        data: {[`${Model.modelName.toString().toLowerCase()}s`]: docs},
       });
-
-      res.status(200).send(docs);
     } catch (err) {
       next(err);
     }
@@ -117,8 +106,6 @@ function deleteOne(Model, paramId) {
 
       await doc.deleteOne();
 
-      if (Model.modelName === 'Product') return next();
-
       res.status(200).send({
         satus: 'success',
       });
@@ -132,8 +119,6 @@ function deleteAll(Model) {
   return async function (req, res, next) {
     try {
       await Model.deleteMany();
-
-      if (Model.modelName === 'Product') return next();
 
       res.status(200).send({status: 'sucess'});
     } catch (err) {

@@ -24,8 +24,7 @@ router
   .delete(
     authController.routeProtection,
     authController.restrictToAdmin,
-    productController.deleteAllProducts,
-    reviewController.deleteAllReviews
+    productController.deleteAllProducts
   );
 
 router
@@ -39,12 +38,7 @@ router
   .delete(
     authController.routeProtection,
     authController.restrictToAdmin,
-    productController.deleteProduct,
-
-    // I did not want to require reviewController in the productController
-    // but this is the only way I know how to delete all reviews when deleting
-    // a product. For now...
-    reviewController.deleteAllReviews
+    productController.deleteProduct
   );
 
 module.exports = router;

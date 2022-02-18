@@ -1,7 +1,6 @@
 'use strict';
 
 const mongoose = require('mongoose');
-const Product = require('./productModel');
 
 // Custom functions
 function requiredValidator() {
