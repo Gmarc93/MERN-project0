@@ -47,6 +47,19 @@ async function preventDuplicateReview(req, res, next) {
   }
 }
 
+async function verifyAuthor(req, res, next) {
+  try {
+    const review = await Review.findById(req.params.reviewId);
+    if (!review || review.user.id !== req.user.id) {
+      throw new AppError('Unauthorized user or review does not exist.', 404);
+    } else {
+      next();
+    }
+  } catch (err) {
+    next(err);
+  }
+}
+
 // CRUD filters
 const createOneFilter = ['summary', 'rating', 'user', 'product'];
 const updateOneFilter = ['summary', 'rating'];
@@ -68,7 +81,7 @@ async function getProductReview(req, res, next) {
     if (!review || review.product.toString() !== req.params.productId)
       throw new AppError('Review does not exist for this product.', 404);
 
-    res.status(200).send({status: 'success', data: {review}});
+    res.status(200).send({ status: 'success', data: { review } });
   } catch (err) {
     next(err);
   }
@@ -78,11 +91,11 @@ async function getAllProductReviews(req, res, next) {
   try {
     if (!req.params.productId) return next();
 
-    const reviews = await Review.find({product: req.params.productId});
+    const reviews = await Review.find({ product: req.params.productId });
 
     res
       .status(200)
-      .send({status: 'success', data: {length: reviews.length, reviews}});
+      .send({ status: 'success', data: { length: reviews.length, reviews } });
   } catch (err) {
     next(err);
   }
@@ -95,14 +108,14 @@ async function updateProductReview(req, res, next) {
     const review = await Review.findById(req.params.reviewId);
 
     if (!review || review.product.toString() !== req.params.productId)
-      throw new AppError('Review does not exist for this product.', 404);
+      throw new AppError('Review cannot be updated for this product.', 404);
 
     const filtered = filterObj(req.body, updateOneFilter);
     assignProps(filtered, review);
 
     await review.save();
 
-    res.status(200).send({status: 'success', data: {review}});
+    res.status(200).send({ status: 'success', data: { review } });
   } catch (err) {
     next(err);
   }
@@ -112,9 +125,9 @@ async function deleteAllProductReviews(req, res, next) {
   try {
     if (!req.params.productId) return next();
 
-    await Review.deleteMany({product: req.params.productId});
+    await Review.deleteMany({ product: req.params.productId });
 
-    res.status(200).send({status: 'success'});
+    res.status(200).send({ status: 'success' });
   } catch (err) {
     next(err);
   }
@@ -123,6 +136,7 @@ async function deleteAllProductReviews(req, res, next) {
 module.exports = {
   initReqBody,
   preventDuplicateReview,
+  verifyAuthor,
   createReview,
   getReview,
   getAllReviews,

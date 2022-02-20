@@ -1,9 +1,9 @@
-const {use} = require('bcrypt/promises');
+const { use } = require('bcrypt/promises');
 const express = require('express');
 const authController = require('../../controllers/authController');
 const reviewController = require('../../controllers/reviewController');
 
-const router = express.Router({mergeParams: true});
+const router = express.Router({ mergeParams: true });
 
 router
   .route('/')
@@ -25,9 +25,14 @@ router
   .get(reviewController.getProductReview, reviewController.getReview)
   .patch(
     authController.routeProtection,
+    reviewController.verifyAuthor,
     reviewController.updateProductReview,
     reviewController.updateReview
   )
-  .delete(authController.routeProtection, reviewController.deleteReview);
+  .delete(
+    authController.routeProtection,
+    reviewController.verifyAuthor,
+    reviewController.deleteReview
+  );
 
 module.exports = router;

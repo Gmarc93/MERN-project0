@@ -72,8 +72,8 @@ const userSchema = mongoose.Schema(
     },
   },
   {
-    toJSON: {virtuals: true, transform: removeFields},
-    toObject: {virtuals: true, transform: removeFields},
+    toJSON: { virtuals: true, transform: removeFields },
+    toObject: { virtuals: true, transform: removeFields },
   }
 );
 
@@ -84,7 +84,7 @@ userSchema.pre('save', async function () {
   this.passwordConfirm = undefined; // Doesn't need to be saved to DB;
 });
 
-userSchema.pre('save', async function (next) {
+userSchema.pre('save', async function () {
   if (!this.isModified('password') || this.isNew) return;
 
   this.passwordChangedAt = Date.now();
