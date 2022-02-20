@@ -7,22 +7,27 @@ const router = express.Router({mergeParams: true});
 
 router
   .route('/')
-  .get(reviewController.getAllProductReviews)
-  .get(reviewController.getAllReviews)
+  .get(reviewController.getAllProductReviews, reviewController.getAllReviews)
   .post(
     authController.routeProtection,
-    reviewController.init,
+    reviewController.initReqBody,
+    reviewController.preventDuplicateReview,
     reviewController.createReview
   )
-  .delete(reviewController.deleteAllProductReviews)
-  .delete(reviewController.deleteAllReviews);
+  .delete(
+    authController.routeProtection,
+    reviewController.deleteAllProductReviews,
+    reviewController.deleteAllReviews
+  );
 
 router
   .route('/:reviewId')
-  .get(reviewController.getProductReview)
-  .get(reviewController.getReview)
-  .patch(authController.routeProtection, reviewController.updateProductReview)
-  .patch(authController.routeProtection, reviewController.updateReview)
+  .get(reviewController.getProductReview, reviewController.getReview)
+  .patch(
+    authController.routeProtection,
+    reviewController.updateProductReview,
+    reviewController.updateReview
+  )
   .delete(authController.routeProtection, reviewController.deleteReview);
 
 module.exports = router;

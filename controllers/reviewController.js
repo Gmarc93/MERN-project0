@@ -26,10 +26,25 @@ function assignProps(source, target) {
 }
 
 // Middleware
-function init(req, res, next) {
+function initReqBody(req, res, next) {
   req.body.product = req.params.productId;
   req.body.user = req.decoded.id;
   next();
+}
+
+async function preventDuplicateReview(req, res, next) {
+  try {
+    const review = await Review.findOne({
+      product: req.body.product,
+      user: req.body.user,
+    });
+
+    if (!review) return next();
+
+    throw new AppError('User cannot duplicate review.', 400);
+  } catch (err) {
+    next(err);
+  }
 }
 
 // CRUD filters
@@ -106,7 +121,8 @@ async function deleteAllProductReviews(req, res, next) {
 }
 
 module.exports = {
-  init,
+  initReqBody,
+  preventDuplicateReview,
   createReview,
   getReview,
   getAllReviews,

@@ -71,23 +71,44 @@ reviewSchema.pre(/^find/, function (next) {
   next();
 });
 
-reviewSchema.post('save', async function (doc) {
-  const result = await this.constructor.aggregate([
-    {$match: {product: doc.product}},
-    {
-      $group: {
-        _id: '$product',
-        ratingsQuantity: {$sum: 1},
-        ratingsAverage: {$avg: '$rating'},
+reviewSchema.post(
+  ['save', 'deleteOne'],
+  {document: true, query: false},
+  async function (doc) {
+    const result = await this.constructor.aggregate([
+      {$match: {product: doc.product}},
+      {
+        $group: {
+          _id: '$product',
+          ratingsQuantity: {$sum: 1},
+          ratingsAverage: {$avg: '$rating'},
+        },
       },
-    },
-  ]);
-  const {ratingsQuantity, ratingsAverage} = result[0];
+    ]);
 
+    if (result.length === 0) {
+      const Product = require('./productModel');
+      await Product.findByIdAndUpdate(doc.product, {
+        ratingsQuantity: 0,
+        ratingsAverage: null,
+      });
+    } else {
+      const {ratingsQuantity, ratingsAverage} = result[0];
+      const Product = require('./productModel');
+      await Product.findByIdAndUpdate(doc.product, {
+        ratingsQuantity,
+        ratingsAverage,
+      });
+    }
+  }
+);
+
+reviewSchema.post('deleteMany', async function () {
   const Product = require('./productModel');
-  await Product.findByIdAndUpdate(doc.product, {
-    ratingsQuantity,
-    ratingsAverage,
+
+  await Product.findByIdAndUpdate(this.getQuery().product, {
+    ratingsQuantity: 0,
+    ratingsAverage: null,
   });
 });
 
