@@ -65,7 +65,10 @@ function readAll(Model) {
 
       res.status(200).send({
         status: 'success',
-        data: {[`${Model.modelName.toString().toLowerCase()}s`]: docs},
+        data: {
+          length: docs.length,
+          [`${Model.modelName.toString().toLowerCase()}s`]: docs,
+        },
       });
     } catch (err) {
       next(err);

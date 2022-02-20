@@ -71,6 +71,26 @@ reviewSchema.pre(/^find/, function (next) {
   next();
 });
 
+reviewSchema.post('save', async function (doc) {
+  const result = await this.constructor.aggregate([
+    {$match: {product: doc.product}},
+    {
+      $group: {
+        _id: '$product',
+        ratingsQuantity: {$sum: 1},
+        ratingsAverage: {$avg: '$rating'},
+      },
+    },
+  ]);
+  const {ratingsQuantity, ratingsAverage} = result[0];
+
+  const Product = require('./productModel');
+  await Product.findByIdAndUpdate(doc.product, {
+    ratingsQuantity,
+    ratingsAverage,
+  });
+});
+
 const Review = mongoose.model('Review', reviewSchema);
 
 module.exports = Review;

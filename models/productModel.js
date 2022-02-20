@@ -59,25 +59,20 @@ const productSchema = mongoose.Schema(
   }
 );
 
-productSchema.pre(
-  'deleteOne',
-  {document: true, query: true},
-  async function (next) {
-    try {
-      await Review.deleteMany({product: this.id});
-      next();
-    } catch (err) {
-      next(err);
-    }
-  }
-);
-
 productSchema.virtual('reviews', {
   ref: 'Review',
   localField: '_id',
   foreignField: 'product',
   limit: 3,
 });
+
+productSchema.pre(
+  'deleteOne',
+  {document: true, query: true},
+  async function () {
+    await Review.deleteMany({product: this.id});
+  }
+);
 
 productSchema.pre(/^find/, function (next) {
   this.populate('reviews');

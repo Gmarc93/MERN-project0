@@ -65,7 +65,9 @@ async function getAllProductReviews(req, res, next) {
 
     const reviews = await Review.find({product: req.params.productId});
 
-    res.status(200).send({status: 'success', data: {reviews}});
+    res
+      .status(200)
+      .send({status: 'success', data: {length: reviews.length, reviews}});
   } catch (err) {
     next(err);
   }
