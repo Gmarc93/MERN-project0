@@ -2,7 +2,7 @@ import React from 'react';
 import {useState} from 'react';
 
 export default function Signup() {
-  // Explore refactoring into an object
+  // Explore refactoring local state into an object
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [userPassword, setUserPassword] = useState('');
