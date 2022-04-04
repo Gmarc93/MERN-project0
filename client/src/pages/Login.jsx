@@ -20,7 +20,7 @@ export default function Login() {
 
   return (
     <main>
-      <h2>Signup</h2>
+      <h2>Login</h2>
       <form onSubmit={onSubmitSignupForm}>
         <input
           type="email"

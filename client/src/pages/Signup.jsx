@@ -1,5 +1,8 @@
 import React from 'react';
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
+import {useSelector, useDispatch} from 'react-redux';
+import {useNavigate} from 'react-router-dom';
+import {signup, reset} from '../features/auth/authSlice';
 
 export default function Signup() {
   // Explore refactoring local state into an object
@@ -8,15 +11,37 @@ export default function Signup() {
   const [userPassword, setUserPassword] = useState('');
   const [userPasswordConfirm, setUserPasswordConfirm] = useState('');
 
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const {user, isLoading, isError, isSuccess, message} = useSelector(
+    (state) => state.auth
+  );
+
+  useEffect(() => {
+    if (isError) {
+      console.log(message);
+    }
+
+    if (isSuccess || user) {
+      navigate('/');
+    }
+
+    dispatch(reset());
+  }, [user, isError, isSuccess, message, navigate, dispatch]);
+
   function onSubmitSignupForm(e) {
     e.preventDefault();
 
-    console.log({
+    const userData = {
       userName,
       userEmail,
       userPassword,
       userPasswordConfirm,
-    });
+    };
+    console.log(userData);
+
+    dispatch(signup(userData));
 
     setUserName('');
     setUserEmail('');
